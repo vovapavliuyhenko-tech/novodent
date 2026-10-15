@@ -4,6 +4,19 @@
 
   // Шапка, мобильное меню и баннер cookie — в common.js (общий для всех страниц)
 
+  /* ---------- Видео: грузим и играем, только когда оно рядом с экраном ---------- */
+  const video = $('.visit__video');
+  if (video) {
+    new IntersectionObserver(([e]) => {
+      if (e.isIntersecting) {
+        if (!video.src) { video.src = video.dataset.src; video.preload = 'auto'; }
+        video.play().catch(() => {});
+      } else if (video.src) {
+        video.pause();
+      }
+    }, { rootMargin: '300px 0px' }).observe(video);
+  }
+
   /* ---------- Появление блоков ---------- */
   const io = new IntersectionObserver(entries => {
     entries.forEach(e => {
@@ -75,21 +88,21 @@
       labels: ['Метод', 'В клинике', 'Врач'],
       visits: 'Элайнеры', term: '2 года', price: 'Ортодонт',
       quote: '«Когда решил себе ставить элайнеры, даже не думал, где это делать»', author: 'Андрей С., отзыв на Яндекс Картах',
-      before: 'img/vn_before.jpg', after: 'img/vn_after.jpg', obj: 'img/o_aligner.png', shape: 'aligner'
+      before: 'img/vn_before.webp', after: 'img/vn_after.webp', obj: 'img/o_aligner.webp', shape: 'aligner'
     },
     {
       title: 'Имплантация',
       text: 'Полное лечение за год: девять имплантов, и все прижились. План и цену обсудили заранее.',
       visits: '9 имплантов', term: '1 год', price: 'Хирург',
       quote: '«Прижились все девять»', author: 'Дарья Ч., отзыв на Яндекс Картах',
-      before: 'img/wh_before.jpg', after: 'img/wh_after.jpg', obj: 'img/o_implant.png', shape: 'implant'
+      before: 'img/wh_before.webp', after: 'img/wh_after.webp', obj: 'img/o_implant.webp', shape: 'implant'
     },
     {
       title: 'Хирургия',
       text: 'Удаление зуба и установка импланта в один визит. Потом клиника сама позвонила узнать самочувствие.',
       visits: 'Удаление', term: '1 визит', price: 'Хирург',
       quote: '«Совсем не больно»', author: 'Татьяна Х., отзыв на Яндекс Картах',
-      before: 'img/wh_before.jpg', after: 'img/wh_after.jpg', obj: 'img/o_tooth.png', shape: 'tooth'
+      before: 'img/wh_before.webp', after: 'img/wh_after.webp', obj: 'img/o_tooth.webp', shape: 'tooth'
     }
   ];
 
@@ -117,7 +130,10 @@
       $('#stPrice').textContent = c.price;
       $('#caseQuote').textContent = c.quote;
       $('#caseAuthor').textContent = c.author;
-      $('#caseObj img').src = c.obj;
+      // заглушку грузим только если 3D не работает
+      const fb = $('#caseObj img');
+      fb.dataset.src = c.obj;
+      if (!$('#caseObj').classList.contains('is-3d') && fb.getAttribute('src')) fb.src = c.obj;
       if (window.opal3d) window.opal3d.setShape($('#caseObj'), c.shape);
       $('#imgBefore').src = c.before;
       $('#imgAfter').src = c.after;

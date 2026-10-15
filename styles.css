@@ -608,7 +608,7 @@ ul, ol { list-style: none; }
   transform: translateY(20px);
   transition: opacity .4s var(--ease), transform .5s var(--ease);
 }
-.price b { font-size: 14px; font-weight: 700; }
+.price b { font-size: 14px; font-weight: 600; }
 .price span { font-size: 12px; color: var(--gray); }
 
 .service:hover { transform: translateY(-8px); box-shadow: 0 28px 50px -22px rgba(40, 40, 90, .45); }

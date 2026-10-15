@@ -9,8 +9,12 @@
   <meta name="description" content="Emily Clinic — стоматология в Новороссийске на проспекте Дзержинского, 194. Лечение, удаление, имплантация, брекеты и детская стоматология. Рейтинг 5,0 на Яндекс Картах.">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Jost:wght@300;400;500&family=Montserrat:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Jost:wght@300;400;500&family=Montserrat:wght@300;400;500;600&display=swap" rel="stylesheet">
+  <link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin>
   <link rel="stylesheet" href="styles.css">
+  <script type="importmap">{"imports":{"three":"https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.module.min.js","three/addons/":"https://cdn.jsdelivr.net/npm/three@0.160.0/examples/jsm/"}}</script>
+  <link rel="modulepreload" href="https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.module.min.js" crossorigin>
+  <link rel="modulepreload" href="opal3d-shapes.js">
 </head>
 <body>
 
@@ -69,14 +73,14 @@
     <div class="hero__right">
       <a href="#booking" class="card card--hero-main reveal">
         <h2 class="card__title-lg">Острая боль?<br>Примем<br>в день<br>обращения</h2>
-        <div class="obj3d obj3d--hero-tooth" data-shape="tooth"><img src="img/o_tooth.png" alt=""></div>
+        <div class="obj3d obj3d--hero-tooth" data-shape="tooth"><img data-src="img/o_tooth.webp" alt="" decoding="async"></div>
         <p class="card__note">Позвоните — администратор подберёт врача и ближайшее время. Сначала снимем боль, потом спокойно обсудим лечение.</p>
         <span class="circle-btn circle-btn--lg"><i class="arr"></i></span>
       </a>
       <a href="#services" class="card card--hero-blue reveal">
         <span class="chip">детям</span>
         <span class="circle-btn"><i class="arr"></i></span>
-        <div class="obj3d obj3d--bubble" data-shape="bubble"><img src="img/o_bubble.png" alt=""></div>
+        <div class="obj3d obj3d--bubble" data-shape="bubble"><img data-src="img/o_bubble.webp" alt="" decoding="async"></div>
         <div class="card__bottom">
           <h3 class="card__title-md">Первый визит<br>без слёз</h3>
           <p class="card__text">Бережно лечим молочные зубы, герметизируем фиссуры и учим не бояться стоматолога.</p>
@@ -106,7 +110,7 @@
       <article class="service service--1 reveal">
         <span class="service__num">01</span>
         <span class="circle-btn"><i class="arr"></i></span>
-        <div class="obj3d" data-shape="implant"><img src="img/o_implant.png" alt=""></div>
+        <div class="obj3d" data-shape="implant"><img data-src="img/o_implant.webp" alt="" decoding="async"></div>
         <div class="service__body">
           <h3 class="service__title">Имплантация</h3>
           <p class="service__text">Один имплант или вся челюсть, при необходимости — с наращиванием кости.<br>Можно поставить сразу после удаления.</p>
@@ -117,7 +121,7 @@
       <article class="service service--2 reveal">
         <span class="service__num">02</span>
         <span class="circle-btn"><i class="arr"></i></span>
-        <div class="obj3d" data-shape="tooth"><img src="img/o_tooth.png" alt=""></div>
+        <div class="obj3d" data-shape="tooth"><img data-src="img/o_tooth.webp" alt="" decoding="async"></div>
         <div class="service__body">
           <h3 class="service__title">Хирургия</h3>
           <p class="service__text">Удаление зубов, в том числе сложных восьмёрок. Быстро и без боли.</p>
@@ -128,7 +132,7 @@
       <article class="service service--3 reveal">
         <span class="service__num">03</span>
         <span class="circle-btn"><i class="arr"></i></span>
-        <div class="obj3d" data-shape="aligner"><img src="img/o_aligner.png" alt=""></div>
+        <div class="obj3d" data-shape="aligner"><img data-src="img/o_aligner.webp" alt="" decoding="async"></div>
         <div class="service__body">
           <h3 class="service__title">Ортодонтия</h3>
           <p class="service__text">Брекеты, элайнеры и расширители для взрослых и детей.</p>
@@ -139,7 +143,7 @@
       <article class="service service--4 reveal">
         <span class="service__num">04</span>
         <span class="circle-btn"><i class="arr"></i></span>
-        <div class="obj3d" data-shape="star"><img src="img/o_star.png" alt=""></div>
+        <div class="obj3d" data-shape="star"><img data-src="img/o_star.webp" alt="" decoding="async"></div>
         <div class="service__body">
           <h3 class="service__title">Детская стоматология</h3>
           <p class="service__text">Лечение молочных зубов, герметизация фиссур, удаление под гелевой анестезией.</p>
@@ -150,7 +154,7 @@
       <article class="service service--5 reveal">
         <span class="service__num">05</span>
         <span class="circle-btn"><i class="arr"></i></span>
-        <div class="obj3d" data-shape="lens"><img src="img/o_pill.png" alt=""></div>
+        <div class="obj3d" data-shape="lens"><img data-src="img/o_pill.webp" alt="" decoding="async"></div>
         <div class="service__body">
           <h3 class="service__title">Лечение зубов</h3>
           <p class="service__text">Кариес, пломбы и каналы — стараемся сохранить свой зуб.</p>
@@ -161,7 +165,7 @@
       <article class="service service--6 reveal">
         <span class="service__num">06</span>
         <span class="circle-btn"><i class="arr"></i></span>
-        <div class="obj3d" data-shape="drop"><img src="img/o_drop.png" alt=""></div>
+        <div class="obj3d" data-shape="drop"><img data-src="img/o_drop.webp" alt="" decoding="async"></div>
         <div class="service__body">
           <h3 class="service__title">Профгигиена</h3>
           <p class="service__text">Профессиональная чистка для всей семьи.<br>Напомним о следующем визите.</p>
@@ -189,8 +193,8 @@
 
     <div class="cases reveal">
       <div class="compare" id="compare" style="--pos:50%">
-        <img class="compare__img compare__after" id="imgAfter" src="img/vn_after.jpg" alt="После лечения">
-        <img class="compare__img compare__before" id="imgBefore" src="img/vn_before.jpg" alt="До лечения">
+        <img class="compare__img compare__after" id="imgAfter" src="img/vn_after.webp" alt="После лечения" width="685" height="460" loading="lazy" decoding="async">
+        <img class="compare__img compare__before" id="imgBefore" src="img/vn_before.webp" alt="До лечения" width="685" height="460" loading="lazy" decoding="async">
         <span class="compare__line"></span>
         <button class="compare__handle" aria-label="Сдвинуть разделитель">
           <svg width="18" height="14" viewBox="0 0 18 14"><path d="M6 1 1 7l5 6M12 1l5 6-5 6" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg>
@@ -201,7 +205,7 @@
 
       <div class="case" id="caseCard">
         <span class="chip">кейс</span>
-        <div class="obj3d case__obj" data-shape="aligner" id="caseObj"><img src="img/o_aligner.png" alt=""></div>
+        <div class="obj3d case__obj" data-shape="aligner" id="caseObj"><img data-src="img/o_aligner.webp" alt="" decoding="async"></div>
         <div class="case__content" id="caseContent">
           <h3 class="case__title" id="caseTitle">Ортодонтия</h3>
           <p class="case__text" id="caseText">Решил выровнять зубы элайнерами — прозрачными капами вместо брекетов. Лечится в клинике уже два года: от чистки до ортодонтии.</p>
@@ -269,7 +273,7 @@
   <!-- ============ Первый визит ============ -->
   <section class="section container visit" id="visit">
     <div class="visit__media reveal">
-      <video class="visit__video" src="video/clinic.webm" autoplay muted loop playsinline preload="metadata" aria-label="Видео из Emily Clinic"></video>
+      <video class="visit__video" data-src="video/clinic.webm" poster="video/clinic-poster.webp" muted loop playsinline preload="none" width="480" height="852" aria-label="Видео из Emily Clinic"></video>
       <span class="tag tag--light visit__tag"><i class="dot"></i>просп. Дзержинского, 194</span>
       <div class="visit__price">
         <b>5,0 ★</b>
@@ -355,7 +359,7 @@
         <h2 class="cta__title">Запишитесь<br>на приём<br>к стоматологу</h2>
         <p class="cta__text">Оставьте телефон — администратор перезвонит в рабочее время и подберёт удобный день.</p>
       </div>
-      <div class="obj3d cta__tooth" data-shape="tooth"><img src="img/o_tooth.png" alt=""></div>
+      <div class="obj3d cta__tooth" data-shape="tooth"><img data-src="img/o_tooth.webp" alt="" decoding="async"></div>
       <form class="form" id="form" novalidate>
         <label class="field">
           <span>Имя</span>
@@ -424,7 +428,6 @@
   </div>
 </footer>
 
-<script type="importmap">{"imports":{"three":"https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.module.js","three/addons/":"https://cdn.jsdelivr.net/npm/three@0.160.0/examples/jsm/"}}</script>
 <script src="common.js"></script>
 <script src="script.js"></script>
 <script type="module" src="opal3d.js"></script>

@@ -4,200 +4,55 @@
    рендерятся одним WebGL-рендерером в 2D-canvas каждой карточки.
    ========================================================= */
 import * as THREE from 'three';
-import { MarchingCubes } from 'three/addons/objects/MarchingCubes.js';
+import { SHAPES, bakeArrays } from './opal3d-shapes.js';
+
+const { sin } = Math;
+const clamp = (v, a, b) => (v < a ? a : v > b ? b : v);
 import { RoomEnvironment } from 'three/addons/environments/RoomEnvironment.js';
 
 const reduceMotion = matchMedia('(prefers-reduced-motion: reduce)').matches;
 
-/* ---------- SDF-примитивы ---------- */
-const { sqrt, abs, max, min, sin, cos, atan2, PI } = Math;
-const len3 = (x, y, z) => sqrt(x * x + y * y + z * z);
-const clamp = (v, a, b) => (v < a ? a : v > b ? b : v);
-const smin = (a, b, k) => { const h = max(k - abs(a - b), 0) / k; return min(a, b) - h * h * k * 0.25; };
-const smax = (a, b, k) => -smin(-a, -b, k);
-const smooth = (e0, e1, x) => { const t = clamp((x - e0) / (e1 - e0), 0, 1); return t * t * (3 - 2 * t); };
-
-function sdEllipsoid(x, y, z, rx, ry, rz) {
-  const k0 = len3(x / rx, y / ry, z / rz);
-  const k1 = len3(x / (rx * rx), y / (ry * ry), z / (rz * rz));
-  return k1 === 0 ? -min(rx, ry, rz) : (k0 * (k0 - 1)) / k1;
-}
-
-// Конус со скруглёнными концами между точками a и b (Inigo Quilez)
-function sdRoundCone(px, py, pz, a, b, r1, r2) {
-  const bax = b[0] - a[0], bay = b[1] - a[1], baz = b[2] - a[2];
-  const l2 = bax * bax + bay * bay + baz * baz;
-  const rr = r1 - r2, a2 = l2 - rr * rr, il2 = 1 / l2;
-  const pax = px - a[0], pay = py - a[1], paz = pz - a[2];
-  const y = pax * bax + pay * bay + paz * baz, z = y - l2;
-  const xx = pax * l2 - bax * y, xy = pay * l2 - bay * y, xz = paz * l2 - baz * y;
-  const x2 = xx * xx + xy * xy + xz * xz, y2 = y * y * l2, z2 = z * z * l2;
-  const k = Math.sign(rr) * rr * rr * x2;
-  if (Math.sign(z) * a2 * z2 > k) return sqrt(x2 + z2) * il2 - r2;
-  if (Math.sign(y) * a2 * y2 < k) return sqrt(x2 + y2) * il2 - r1;
-  return (sqrt(x2 * a2 * il2) + y * rr) * il2 - r1;
-}
-
-/* ---------- Формы ---------- */
-const SHAPES = {
-  tooth: {
-    res: 84,
-    sdf(x, y, z) {
-      // коронка
-      let d = sdEllipsoid(x, y - 0.36, z, 0.6, 0.38, 0.5);
-      for (const sx of [-1, 1]) for (const sz of [-1, 1]) {
-        d = smin(d, len3(x - sx * 0.27, y - 0.58, z - sz * 0.21) - 0.27, 0.22);
-      }
-      d = smax(d, -(len3(x, y - 0.98, z) - 0.3), 0.16);           // фиссура
-      d = smin(d, sdEllipsoid(x, y - 0.04, z, 0.47, 0.26, 0.4), 0.2); // шейка
-      // корни
-      d = smin(d, sdRoundCone(x, y, z, [-0.24, 0.02, 0.1], [-0.4, -0.9, 0.16], 0.21, 0.055), 0.2);
-      d = smin(d, sdRoundCone(x, y, z, [0.24, 0.02, 0.1], [0.38, -0.88, 0.2], 0.21, 0.055), 0.2);
-      d = smin(d, sdRoundCone(x, y, z, [0, 0.02, -0.2], [0.03, -0.84, -0.32], 0.21, 0.06), 0.2);
-      return d;
-    },
-    rot: [0.12, -0.45, 0.04], wobble: 0.12
-  },
-
-  star: {
-    res: 80,
-    sdf(x, y, z) {
-      const zs = z / 0.62;
-      let d = sdEllipsoid(x, y, zs, 0.36, 0.36, 0.42);
-      const L = 0.94;
-      for (const [ax, ay] of [[L, 0], [-L, 0], [0, L], [0, -L]]) {
-        d = smin(d, sdRoundCone(x, y, zs, [0, 0, 0], [ax, ay, 0], 0.3, 0.035), 0.34);
-      }
-      return d * 0.62;
-    },
-    rot: [0.25, 0.35, 0.12], wobble: 0.15
-  },
-
-  bubble: {
-    res: 64,
-    sdf: (x, y, z) => len3(x, y, z) - 0.86,
-    rot: [0, 0, 0], wobble: 1
-  },
-
-  drop: {
-    res: 76,
-    sdf: (x, y, z) => sdRoundCone(x, y, z, [0, -0.3, 0], [0, 0.88, 0], 0.6, 0.025),
-    rot: [0.08, 0, -0.08], wobble: 0.55
-  },
-
-  lens: {
-    res: 72,
-    sdf: (x, y, z) => sdEllipsoid(x, y, z, 0.86, 0.86, 0.4),
-    rot: [0.45, -0.75, 0.55], wobble: 0.3
-  },
-
-  veneer: {
-    res: 84,
-    sdf(x, y, z) {
-      // изогнутая тонкая «лопатка», шире к режущему краю
-      const w = 0.84 + 0.2 * clamp(-y, -1, 1);
-      const bz = z + 0.4 * x * x - 0.08 - 0.12 * y * y;
-      return sdEllipsoid(x / w, y, bz, 0.62, 0.86, 0.17) * 0.8;
-    },
-    rot: [-0.1, -0.5, -0.18], wobble: 0.15
-  },
-
-  aligner: {
-    res: 96,
-    sdf(x, y, z) {
-      let d = 1e9;
-      const n = 14;
-      for (let i = 0; i < n; i++) {
-        const t = -1 + (2 * i) / (n - 1);
-        const th = t * 1.33;
-        const cx = 0.8 * sin(th), cz = -0.62 * cos(th) + 0.28;
-        const m = smooth(0.35, 1, abs(t));
-        // ориентируем «зуб» по касательной к дуге
-        const dx = x - cx, dz = z - cz;
-        const c = cos(th), s = sin(th);
-        const lx = dx * c - dz * s, lz = dx * s + dz * c;
-        const e = sdEllipsoid(lx, y, lz, 0.075 + 0.045 * m, 0.13 - 0.015 * m, 0.07 + 0.075 * m);
-        d = smin(d, e, 0.075);
-      }
-      // каппа полая — вычитаем внутренний объём снизу
-      return smax(d, -(y + 0.06 + 0.0), 0.04);
-    },
-    rot: [1.0, 0, 0], wobble: 0.1
-  },
-
-  implant: {
-    res: 100,
-    sdf(x, y, z) {
-      // винт с винтовой резьбой
-      const q = sqrt(x * x + z * z);
-      const phase = y * 7.5 - atan2(z, x) / (2 * PI);
-      const tri = abs(phase - Math.floor(phase) - 0.5) * 2;
-      const taper = 1 - 0.38 * smooth(-0.45, -0.95, y);
-      const r = (0.16 + 0.055 * (1 - tri)) * taper;
-      let screw = (q - r) * 0.7;
-      screw = smax(screw, y - 0.06, 0.05);
-      screw = smax(screw, -0.95 - y, 0.08);
-      // абатмент
-      let d = smin(screw, sdRoundCone(x, y, z, [0, 0.02, 0], [0, 0.26, 0], 0.15, 0.11), 0.06);
-      // коронка
-      let crown = sdEllipsoid(x, y - 0.56, z, 0.44, 0.27, 0.4);
-      for (const sx of [-1, 1]) for (const sz of [-1, 1]) {
-        crown = smin(crown, len3(x - sx * 0.19, y - 0.72, z - sz * 0.16) - 0.18, 0.15);
-      }
-      crown = smax(crown, -(len3(x, y - 0.98, z) - 0.2), 0.12);
-      return smin(d, crown, 0.1);
-    },
-    rot: [0.15, 0.4, -0.12], wobble: 0.08
-  }
-};
-
-/* ---------- Запекание формы в геометрию ---------- */
+/* ---------- Геометрия: строится в фоновом потоке, чтобы не тормозить страницу ---------- */
 const geoCache = new Map();
-let mcCache = null;
+const geoPending = new Map();
+let worker = null;
+try {
+  worker = new Worker(new URL('./opal3d-worker.js', import.meta.url), { type: 'module' });
+  worker.addEventListener('error', () => { worker = null; });
+} catch (e) {
+  worker = null;
+}
 
-function bake(name) {
-  if (geoCache.has(name)) return geoCache.get(name);
-  const def = SHAPES[name];
-  const res = def.res;
-  if (!mcCache || mcCache.size !== res) {
-    mcCache = new MarchingCubes(res, new THREE.MeshBasicMaterial(), false, false, 260000);
-  }
-  const mc = mcCache;
-  mc.reset();
-  const f = mc.field, half = res / 2, size2 = res * res;
-  for (let k = 0; k < res; k++) {
-    const z = (k - half) / half;
-    for (let j = 0; j < res; j++) {
-      const y = (j - half) / half;
-      const o = k * size2 + j * res;
-      for (let i = 0; i < res; i++) {
-        f[o + i] = -def.sdf((i - half) / half, y, z);
-      }
-    }
-  }
-  mc.isolation = 0;
-  mc.update();
+function bakeInWorker(name) {
+  return new Promise((resolve, reject) => {
+    if (!worker) return reject(new Error('no worker'));
+    const timer = setTimeout(() => reject(new Error('timeout')), 10000);
+    const onMsg = e => {
+      if (e.data.name !== name) return;
+      worker.removeEventListener('message', onMsg);
+      clearTimeout(timer);
+      e.data.error ? reject(new Error(e.data.error)) : resolve(e.data);
+    };
+    worker.addEventListener('message', onMsg);
+    worker.postMessage({ name });
+  });
+}
 
-  const n = mc.count;
-  const pos = mc.positionArray.slice(0, n * 3);
-  const nor = mc.normalArray.slice(0, n * 3);
-  for (let i = 0; i < n * 3; i += 3) {
-    const l = Math.hypot(nor[i], nor[i + 1], nor[i + 2]) || 1;
-    nor[i] /= l; nor[i + 1] /= l; nor[i + 2] /= l;
-  }
-  const g = new THREE.BufferGeometry();
-  g.setAttribute('position', new THREE.BufferAttribute(pos, 3));
-  g.setAttribute('normal', new THREE.BufferAttribute(nor, 3));
-  g.computeBoundingBox();
-  const c = new THREE.Vector3();
-  g.boundingBox.getCenter(c);
-  g.translate(-c.x, -c.y, -c.z);
-  g.computeBoundingSphere();
-  const s = 1 / g.boundingSphere.radius;
-  g.scale(s, s, s);
-  g.computeBoundingSphere();
-  geoCache.set(name, g);
-  return g;
+function getGeo(name) {
+  if (geoCache.has(name)) return Promise.resolve(geoCache.get(name));
+  if (geoPending.has(name)) return geoPending.get(name);
+  const p = bakeInWorker(name)
+    .catch(() => bakeArrays(name))            // запасной путь: в основном потоке
+    .then(({ pos, nor }) => {
+      const g = new THREE.BufferGeometry();
+      g.setAttribute('position', new THREE.BufferAttribute(pos, 3));
+      g.setAttribute('normal', new THREE.BufferAttribute(nor, 3));
+      g.computeBoundingSphere();
+      geoCache.set(name, g);
+      return g;
+    });
+  geoPending.set(name, p);
+  return p;
 }
 
 /* ---------- Рендерер и окружение ---------- */
@@ -209,6 +64,7 @@ try {
 }
 
 if (renderer) init();
+else if (window.opalFallback) window.opalFallback();
 
 function init() {
   renderer.setPixelRatio(1);
@@ -322,18 +178,24 @@ function init() {
 
     setShape(name, initial) {
       if (!SHAPES[name] || name === this.shape) return;
-      if (initial || !this.ready) { this.shape = name; this.ready = false; return; }
+      if (initial || !this.ready) { this.shape = name; this.ready = false; this.loading = false; return; }
+      getGeo(name);                 // заранее просим фоновый поток построить форму
       this.swap = { name, t: 0 };   // анимация «уйти — прийти»
     }
 
     applyShape() {
-      const g = bake(this.shape);
-      const def = SHAPES[this.shape];
-      this.back.geometry = g; this.front.geometry = g;
-      this.base = def.rot;
-      this.wobble = def.wobble;
-      this.ready = true;
-      this.el.classList.add('is-3d');
+      const name = this.shape;
+      this.loading = true;
+      return getGeo(name).then(g => {
+        this.loading = false;
+        if (this.shape !== name) return;
+        const def = SHAPES[name];
+        this.back.geometry = g; this.front.geometry = g;
+        this.base = def.rot;
+        this.wobble = def.wobble;
+        this.ready = true;
+        this.el.classList.add('is-3d');
+      }, () => { this.loading = false; });
     }
   }
 
@@ -356,15 +218,17 @@ function init() {
 
   /* ---------- Ленивое запекание: сначала видимые ---------- */
   function bakeNext() {
-    const pending = views.filter(v => !v.ready);
+    const pending = views.filter(v => !v.ready && !v.loading);
     if (!pending.length) return;
     pending.sort((a, b) => (b.visible - a.visible) || (a.el.getBoundingClientRect().top - b.el.getBoundingClientRect().top));
-    pending[0].applyShape();
-    // остальные вьюхи с той же формой получают её бесплатно
-    views.forEach(v => { if (!v.ready && geoCache.has(v.shape)) v.applyShape(); });
-    (window.requestIdleCallback || (cb => setTimeout(cb, 60)))(bakeNext, { timeout: 400 });
+    // формы строятся по очереди в фоне; вьюхи с той же формой получают её из кэша
+    pending[0].applyShape().then(() => {
+      views.forEach(v => { if (!v.ready && !v.loading && geoCache.has(v.shape)) v.applyShape(); });
+      bakeNext();
+    });
   }
-  bakeNext();
+  // стартуем после первой отрисовки страницы
+  (window.requestIdleCallback || (cb => setTimeout(cb, 200)))(bakeNext, { timeout: 1200 });
 
   /* ---------- Цикл рендера ---------- */
   let bufW = 0, bufH = 0, last = performance.now();
@@ -401,7 +265,8 @@ function init() {
       if (v.swap) {
         v.swap.t += dt / 0.9;
         if (v.swap.t >= 0.5 && v.shape !== v.swap.name) {
-          v.shape = v.swap.name; v.applyShape();
+          if (geoCache.has(v.swap.name)) { v.shape = v.swap.name; v.applyShape(); }
+          else v.swap.t = 0.5;          // ждём, пока фоновый поток достроит форму
         }
         swapScale = v.swap.t < 0.5 ? 1 - ease(v.swap.t * 2) : backOut((v.swap.t - 0.5) * 2);
         if (v.swap.t >= 1) v.swap = null;

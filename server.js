@@ -13,6 +13,7 @@ const types = {
   '.jpg': 'image/jpeg',
   '.svg': 'image/svg+xml',
   '.webm': 'video/webm',
+  '.webp': 'image/webp',
   '.mp4': 'video/mp4'
 };
 

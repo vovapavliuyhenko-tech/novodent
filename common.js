@@ -19,6 +19,17 @@
     nav.querySelectorAll('a').forEach(a => a.addEventListener('click', closeMenu));
   }
 
+  /* ---------- Запасные картинки 3D-фигур ---------- */
+  // PNG/WebP-заглушки грузятся, только если 3D не запустилось (нет WebGL или CDN недоступен)
+  window.opalFallback = () => {
+    document.querySelectorAll('.obj3d:not(.is-3d) img[data-src]').forEach(img => {
+      if (!img.getAttribute('src')) img.src = img.dataset.src;
+    });
+  };
+  if (document.querySelector('.obj3d')) {
+    setTimeout(() => { if (!document.querySelector('.obj3d.is-3d')) window.opalFallback(); }, 6000);
+  }
+
   /* ---------- Баннер cookie ---------- */
   const KEY = 'emily_cookie_consent'; // 'all' | 'necessary'
   const read = () => { try { return localStorage.getItem(KEY); } catch (e) { return null; } };
