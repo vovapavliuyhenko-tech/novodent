@@ -302,6 +302,12 @@
       else if (e.key === 'Escape') close();
     });
     document.addEventListener('pointerdown', e => { if (!sel.contains(e.target)) close(); });
+    // при прокрутке страницы список не должен «висеть» поверх контента
+    let openY = 0;
+    btn.addEventListener('click', () => { openY = window.scrollY; });
+    window.addEventListener('scroll', () => {
+      if (sel.classList.contains('is-open') && Math.abs(window.scrollY - openY) > 60) close();
+    }, { passive: true });
   });
 
   const form = $('#form');

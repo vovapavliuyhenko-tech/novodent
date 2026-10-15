@@ -1667,3 +1667,178 @@ ul, ol { list-style: none; }
   .step-cta { padding: 16px; }
   .step-cta__actions .btn { flex: 1 1 auto; }
 }
+
+/* =========================================================
+   Мобильная версия: стандарты, касания, финальная доводка
+   ========================================================= */
+html { -webkit-text-size-adjust: 100%; text-size-adjust: 100%; }
+a, button, label, summary { -webkit-tap-highlight-color: transparent; }
+.header { padding-top: max(12px, env(safe-area-inset-top)); }
+.cookie { bottom: max(20px, env(safe-area-inset-bottom)); }
+
+.hero__how { display: none; }
+
+/* Сенсорные экраны: без «залипающего» ховера, всё важное видно сразу */
+@media (hover: none) {
+  .card:hover, .service:hover, .review:hover, .rating:hover { transform: none; box-shadow: none; }
+  .service .price { opacity: 1; transform: none; }
+  .service .service__body { transform: translateY(-58px); }
+  .doctor__bar { opacity: 1; transform: none; }
+  .doctor:hover .doctor__photo img, .doctor:hover .doctor__mono { transform: none; }
+  .card:active, .service:active, .review:active { transform: scale(.985); transition-duration: .15s; }
+}
+
+@media (max-width: 900px) {
+  .burger { width: 44px; height: 44px; }
+  .tabs__btn { height: 42px; }
+  .footer__legal a { padding: 6px 0; }
+}
+
+@media (max-width: 600px) {
+  :root { --pad: 16px; }
+  body { font-size: 15px; }
+  .section { padding-top: 72px; }
+  .section__head { margin-bottom: 24px; }
+  .h2 { font-size: clamp(30px, 8.6vw, 36px); }
+  .lead { font-size: 14px; }
+
+  /* поля ввода 16px — iOS не приближает страницу при фокусе */
+  .field input, .select__btn, .select__value { font-size: 16px; }
+  .select__btn { padding-top: 24px; padding-bottom: 10px; }
+  .field { padding: 10px 14px 10px; }
+  .field.select { padding: 0; }
+
+  /* Hero */
+  .hero { padding-top: calc(var(--header-h) + 18px); gap: 28px; }
+  .hero__title .btn-outline { display: none; }
+  .hero__title { font-size: clamp(34px, 10vw, 42px); line-height: 1.06; }
+  .hero__pill { width: 1.3em; height: .66em; }
+  .hero__lead { margin-top: 16px; }
+  .hero__actions { margin-top: 22px; gap: 8px; }
+  .hero__actions .btn { width: 100%; height: 50px; font-size: 14px; }
+  .hero__how {
+    display: inline-flex;
+    align-items: center;
+    gap: 9px;
+    margin: 6px auto 0;
+    padding: 10px 6px;
+    font-size: 13.5px;
+    font-weight: 500;
+    color: var(--gray);
+  }
+  .hero__bottom { margin-top: 28px; padding-top: 22px; gap: 16px; }
+  .hero__features li { height: 34px; font-size: 13px; }
+
+  .hero__right { gap: 10px; }
+  .card { padding: 20px 18px; border-radius: 24px; }
+  .card--hero-main { min-height: 330px; padding: 24px 20px; }
+  .card__note { left: 20px; right: 70px; bottom: 22px; max-width: none; font-size: 12.5px; }
+  .obj3d--hero-tooth { width: 50%; right: -2%; left: auto; top: 18%; }
+  .card--hero-blue { min-height: 250px; }
+  .card--hero-blue .card__bottom { max-width: 62%; }
+  .obj3d--bubble { width: 52%; left: auto; right: -6%; top: 6%; }
+  .card--hero-green { min-height: 200px; }
+  .counter { font-size: 64px; }
+  .card__text { font-size: 12.5px; max-width: none; }
+
+  /* Услуги */
+  .services { grid-auto-rows: 280px; gap: 10px; }
+  .service { padding: 18px; border-radius: 24px; }
+  .service__num { font-size: 12px; height: 26px; }
+  .service__title { font-size: 24px; }
+  .service__text { font-size: 13px; max-width: 78%; }
+  .service .obj3d { width: 52%; left: auto; right: -4%; top: -6%; }
+  .service--1 .obj3d { width: 40%; right: 2%; }
+  .service--3 .obj3d { width: 74%; right: -8%; top: -12%; }
+  .price { height: 46px; }
+  .price b { font-size: 15px; }
+  .price span { font-size: 12.5px; }
+
+  /* До и после */
+  .tabs { width: 100%; padding: 4px; }
+  .tabs__btn { flex: 1; height: 42px; padding: 0 6px; font-size: 13px; }
+  .cases { gap: 10px; }
+  .compare { border-radius: 22px; }
+  .compare__handle { width: 44px; height: 44px; margin: -22px 0 0 -22px; }
+  .case { min-height: 0; padding: 20px 18px 18px; border-radius: 24px; }
+  .case__content { margin-top: 14px; max-width: 72%; }
+  .case__obj { width: 50%; right: -10%; top: -4%; }
+  .case__stats { margin-top: 26px; }
+  .stat span { font-size: 11.5px; }
+  .stat b { font-size: 13.5px; white-space: normal; }
+  .case__quote p { font-size: 13.5px; }
+  .case__quote span { font-size: 12px; }
+
+  /* Врачи */
+  .doctors { gap: 10px; row-gap: 22px; }
+  .doctor__photo { border-radius: 20px; }
+  .doctor__mono { font-size: 48px; }
+  .doctor__bar { left: 8px; right: 8px; bottom: 8px; padding: 4px; border-radius: 14px; }
+  .doctor__bar > span { display: none; }
+  .doctor__bar .btn { width: 100%; height: 40px; font-size: 12.5px; }
+  .doctor__name { margin-top: 12px; font-size: 14.5px; line-height: 1.3; }
+  .doctor__role { font-size: 12.5px; line-height: 1.4; }
+
+  /* Первый визит */
+  .visit { gap: 32px; }
+  .visit__media { border-radius: 24px; }
+  .visit__tag { top: 12px; left: 12px; font-size: 12px; }
+  .visit__price { left: 12px; bottom: 12px; width: auto; max-width: 70%; padding: 12px 16px 14px; }
+  .visit__price b { font-size: 28px; }
+  .step { padding-left: 58px; min-height: 0; padding-bottom: 28px; }
+  .step h3 { font-size: 17px; }
+  .step p { font-size: 13.5px; }
+  .step-cta__actions .btn { width: 100%; height: 48px; }
+
+  /* Отзывы */
+  .rating { flex-wrap: wrap; justify-content: center; gap: 6px 10px; padding: 8px 14px 8px 8px; font-size: 12.5px; }
+  .rating > span:last-of-type { white-space: nowrap; }
+  .marquee { gap: 12px; -webkit-mask: linear-gradient(90deg, transparent 0, #000 6%, #000 94%, transparent 100%); mask: linear-gradient(90deg, transparent 0, #000 6%, #000 94%, transparent 100%); }
+  .review { width: 270px; min-height: 130px; padding: 18px; }
+  .review blockquote { font-size: 14.5px; }
+
+  /* Запись */
+  .cta { padding: 26px 16px 16px; border-radius: 26px; gap: 22px; }
+  .cta__title { font-size: clamp(32px, 9.4vw, 40px); }
+  .cta__text { font-size: 13.5px; max-width: 70%; }
+  .cta__tooth { width: 40%; right: -4%; top: -2%; opacity: .55; }
+  .form { padding: 10px; border-radius: 20px; }
+  .btn--block { height: 52px; font-size: 15px; }
+  .consent { font-size: 12px; padding: 6px 4px 4px; }
+  .consent__box { width: 20px; height: 20px; }
+  .select__list { max-height: 300px; }
+  .select__opt { padding: 13px 12px; font-size: 15px; }
+
+  /* Подвал */
+  .footer__cols { grid-template-columns: 1fr 1fr; gap: 22px 16px; }
+  .footer__cols > div:first-child,
+  .footer__cols > div:last-child { grid-column: 1 / -1; }
+  .footer__cols p { font-size: 14px; white-space: normal; }
+  .footer__item { font-size: 88px; }
+  .footer__warn { font-size: 11px; line-height: 1.5; }
+  .footer__bottom { flex-direction: column; align-items: center; text-align: center; gap: 14px; padding-bottom: max(22px, env(safe-area-inset-bottom)); }
+  .footer__legal { flex-direction: column; align-items: center; gap: 0; }
+  .footer__legal a { padding: 10px 4px; }
+  .logo { padding: 8px 0; }
+  .dev-link { height: 40px; padding: 0 18px; }
+
+  /* Cookie */
+  .cookie { padding: 16px; gap: 10px 12px; border-radius: 22px; }
+  .cookie__text { font-size: 13px; }
+  .cookie__btn { height: 44px; }
+
+  /* Документы */
+  .legal__title { font-size: clamp(30px, 9vw, 38px); }
+  .legal__sec p, .legal__sec li { font-size: 15px; }
+  .legal__toc a { padding: 10px; }
+}
+
+@media (max-width: 360px) {
+  .hero__title { font-size: 31px; }
+  .tabs__btn { font-size: 12px; }
+  .doctors { grid-template-columns: 1fr 1fr; }
+  .doctor__name { font-size: 13.5px; }
+  .stat { padding: 10px 8px; }
+  .stat b { font-size: 12.5px; }
+  .footer__item { font-size: 72px; }
+}

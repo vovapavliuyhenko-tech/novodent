@@ -376,7 +376,8 @@ function init() {
     last = now;
     const time = now / 1000;
     shared.uTime.value = time;
-    const dpr = Math.min(devicePixelRatio || 1, 2);
+    // на телефонах чуть ниже плотность — плавнее и меньше нагрев
+    const dpr = Math.min(devicePixelRatio || 1, innerWidth < 700 ? 1.75 : 2);
 
     for (const v of views) {
       if (!v.visible || !v.ready) continue;
