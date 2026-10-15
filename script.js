@@ -71,9 +71,10 @@
   const cases = [
     {
       title: 'Ортодонтия',
-      text: 'Брекеты на обе челюсти. Врач-ортодонт вела лечение от установки до снятия.',
-      visits: 'Брекеты', term: '2 года', price: 'Ортодонт',
-      quote: '«Результат огромный — спасибо за терпение»', author: 'Алина Н., отзыв на Яндекс Картах',
+      text: 'Решил выровнять зубы элайнерами — прозрачными капами вместо брекетов. Лечится в клинике уже два года: от чистки до ортодонтии.',
+      labels: ['Метод', 'В клинике', 'Врач'],
+      visits: 'Элайнеры', term: '2 года', price: 'Ортодонт',
+      quote: '«Когда решил себе ставить элайнеры, даже не думал, где это делать»', author: 'Андрей С., отзыв на Яндекс Картах',
       before: 'img/vn_before.jpg', after: 'img/vn_after.jpg', obj: 'img/o_aligner.png', shape: 'aligner'
     },
     {
@@ -109,6 +110,8 @@
     setTimeout(() => {
       $('#caseTitle').textContent = c.title;
       $('#caseText').textContent = c.text;
+      const labels = c.labels || ['Метод', 'Срок', 'Врач'];
+      ['#lbl1', '#lbl2', '#lbl3'].forEach((id, k) => { $(id).textContent = labels[k]; });
       $('#stVisits').textContent = c.visits;
       $('#stTerm').textContent = c.term;
       $('#stPrice').textContent = c.price;
