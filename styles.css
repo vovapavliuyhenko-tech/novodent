@@ -1895,6 +1895,8 @@ a, button, label, summary { -webkit-tap-highlight-color: transparent; }
   .gallery__item { aspect-ratio: 4 / 3; }
   .gallery__item--big { grid-column: 1 / -1; grid-row: auto; aspect-ratio: 4 / 3; }
   .gallery__facts { grid-column: 1 / -1; }
+  /* последнее фото одно в ряду — растягиваем на всю ширину */
+  .gallery__item--wide-m { grid-column: 1 / -1; aspect-ratio: 16 / 9; }
 }
 @media (max-width: 600px) {
   .gallery { gap: 10px; }
