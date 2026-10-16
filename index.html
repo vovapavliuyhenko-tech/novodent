@@ -176,6 +176,53 @@
     </div>
   </section>
 
+  <!-- ============ До и после ============ -->
+  <!-- Фото «до/после» — временные, замените на реальные работы клиники (img/*_before.webp, img/*_after.webp) -->
+  <section class="section container" id="cases">
+    <div class="section__head section__head--center-y">
+      <div>
+        <span class="label reveal">До и после</span>
+        <h2 class="h2 reveal">Как меняется<br><span class="muted">улыбка</span></h2>
+      </div>
+      <div class="tabs reveal" role="tablist" id="caseTabs">
+        <span class="tabs__bg" aria-hidden="true"></span>
+        <button class="tabs__btn is-active" role="tab" data-case="0">Гигиена</button>
+        <button class="tabs__btn" role="tab" data-case="1">Лечение</button>
+      </div>
+    </div>
+
+    <div class="cases reveal">
+      <div class="compare" id="compare" style="--pos:50%">
+        <img class="compare__img compare__after" id="imgAfter" src="img/wh_after.webp" alt="После лечения" width="685" height="460" loading="lazy" decoding="async">
+        <img class="compare__img compare__before" id="imgBefore" src="img/wh_before.webp" alt="До лечения" width="685" height="460" loading="lazy" decoding="async">
+        <span class="compare__line"></span>
+        <button class="compare__handle" aria-label="Сдвинуть разделитель">
+          <svg width="18" height="14" viewBox="0 0 18 14"><path d="M6 1 1 7l5 6M12 1l5 6-5 6" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        </button>
+        <span class="tag tag--light compare__tag-l">До</span>
+        <span class="tag tag--dark compare__tag-r">После</span>
+      </div>
+
+      <div class="case" id="caseCard">
+        <span class="chip">кейс</span>
+        <div class="obj3d case__obj" data-shape="drop" id="caseObj"><img data-src="img/o_drop.webp" alt="" decoding="async"></div>
+        <div class="case__content" id="caseContent">
+          <h3 class="case__title" id="caseTitle">Профгигиена</h3>
+          <p class="case__text" id="caseText">Комплексная чистка ультразвуком и Air-Flow: убрали камни, налёт и пигментацию на передних зубах.</p>
+        </div>
+        <div class="case__stats">
+          <div class="stat"><span id="lbl1">Метод</span><b id="stVisits">Air-Flow</b></div>
+          <div class="stat"><span id="lbl2">Визитов</span><b id="stTerm">1</b></div>
+          <div class="stat"><span id="lbl3">Стоимость</span><b id="stPrice">5 000 ₽</b></div>
+        </div>
+        <div class="case__quote">
+          <p id="caseQuote">«Исчезли камни, налет и пигментация на передних зубах»</p>
+          <span id="caseAuthor">Наталья, отзыв на Яндекс Картах</span>
+        </div>
+      </div>
+    </div>
+  </section>
+
   <!-- ============ Клиника (фото — карточка клиники на Яндекс Картах) ============ -->
   <section class="section container" id="clinic">
     <div class="section__head">

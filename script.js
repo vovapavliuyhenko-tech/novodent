@@ -43,6 +43,114 @@
     }).observe(el);
   });
 
+  /* ---------- До / после: слайдер ---------- */
+  const compare = $('#compare');
+  let pos = 50;
+  const setPos = p => {
+    pos = Math.max(0, Math.min(100, p));
+    compare.style.setProperty('--pos', pos + '%');
+  };
+  const fromEvent = e => {
+    const r = compare.getBoundingClientRect();
+    return ((e.clientX - r.left) / r.width) * 100;
+  };
+  let dragging = false;
+  compare.addEventListener('pointerdown', e => {
+    dragging = true;
+    compare.classList.remove('is-animating');
+    compare.setPointerCapture(e.pointerId);
+    setPos(fromEvent(e));
+  });
+  compare.addEventListener('pointermove', e => { if (dragging) setPos(fromEvent(e)); });
+  compare.addEventListener('pointerup', () => { dragging = false; });
+  compare.addEventListener('pointercancel', () => { dragging = false; });
+  $('.compare__handle', compare).addEventListener('keydown', e => {
+    if (e.key === 'ArrowLeft') setPos(pos - 5);
+    if (e.key === 'ArrowRight') setPos(pos + 5);
+  });
+
+  const sweep = () => {
+    compare.classList.add('is-animating');
+    setPos(85);
+    setTimeout(() => setPos(50), 750);
+    setTimeout(() => compare.classList.remove('is-animating'), 1500);
+  };
+  new IntersectionObserver((en, o) => {
+    if (en[0].isIntersecting) { setTimeout(sweep, 500); o.disconnect(); }
+  }, { threshold: 0.5 }).observe(compare);
+
+  /* ---------- До / после: вкладки ---------- */
+  // Кейсы — по отзывам «НовоДента» на Яндекс Картах. Фото до/после временные: замените на реальные работы клиники.
+  const cases = [
+    {
+      title: 'Профгигиена',
+      text: 'Комплексная чистка ультразвуком и Air-Flow: убрали камни, налёт и пигментацию на передних зубах.',
+      labels: ['Метод', 'Визитов', 'Стоимость'],
+      visits: 'Air-Flow', term: '1', price: '5 000 ₽',
+      quote: '«Исчезли камни, налет и пигментация на передних зубах»', author: 'Наталья, отзыв на Яндекс Картах',
+      before: 'img/wh_before.webp', after: 'img/wh_after.webp', obj: 'img/o_drop.webp', shape: 'drop'
+    },
+    {
+      title: 'Лечение и протезирование',
+      text: 'Удалили испорченный зуб, пролечили остальные и подготовили к протезированию — за четыре приёма подряд.',
+      labels: ['Приёмов', 'Дней подряд', 'Далее'],
+      visits: '4', term: '4', price: 'Протезы',
+      quote: '«Отличная работа доктора. Видно, что оснастка и инструменты крутые»', author: 'Arthur K., отзыв на Яндекс Картах',
+      before: 'img/vn_before.webp', after: 'img/vn_after.webp', obj: 'img/o_pill.webp', shape: 'lens'
+    }
+  ];
+
+  const tabs = $('#caseTabs');
+  const tabBg = $('.tabs__bg', tabs);
+  const caseCard = $('#caseCard');
+  const moveTabBg = btn => {
+    tabBg.style.width = btn.offsetWidth + 'px';
+    tabBg.style.transform = `translateX(${btn.offsetLeft}px)`;
+  };
+  const preload = src => { const i = new Image(); i.src = src; };
+  cases.forEach(c => { preload(c.before); preload(c.after); preload(c.obj); });
+
+  const showCase = i => {
+    const c = cases[i];
+    caseCard.classList.add('is-switching');
+    compare.classList.add('is-switching');
+    setTimeout(() => {
+      $('#caseTitle').textContent = c.title;
+      $('#caseText').textContent = c.text;
+      const labels = c.labels || ['Метод', 'Срок', 'Врач'];
+      ['#lbl1', '#lbl2', '#lbl3'].forEach((id, k) => { $(id).textContent = labels[k]; });
+      $('#stVisits').textContent = c.visits;
+      $('#stTerm').textContent = c.term;
+      $('#stPrice').textContent = c.price;
+      $('#caseQuote').textContent = c.quote;
+      $('#caseAuthor').textContent = c.author;
+      // заглушку грузим только если 3D не работает
+      const fb = $('#caseObj img');
+      fb.dataset.src = c.obj;
+      if (!$('#caseObj').classList.contains('is-3d') && fb.getAttribute('src')) fb.src = c.obj;
+      if (window.opal3d) window.opal3d.setShape($('#caseObj'), c.shape);
+      $('#imgBefore').src = c.before;
+      $('#imgAfter').src = c.after;
+      caseCard.classList.remove('is-switching');
+      compare.classList.remove('is-switching');
+      sweep();
+    }, 300);
+  };
+
+  $$('.tabs__btn', tabs).forEach(btn => {
+    btn.addEventListener('click', () => {
+      if (btn.classList.contains('is-active')) return;
+      $$('.tabs__btn', tabs).forEach(b => b.classList.remove('is-active'));
+      btn.classList.add('is-active');
+      moveTabBg(btn);
+      showCase(+btn.dataset.case);
+    });
+  });
+  const initTabs = () => moveTabBg($('.tabs__btn.is-active', tabs));
+  initTabs();
+  window.addEventListener('resize', initTabs);
+  document.fonts && document.fonts.ready.then(initTabs);
+
   /* ---------- Первый визит: шаги загораются по скроллу ---------- */
   // Сплошная линия от центра первого кружка до центра последнего.
   // Заполнение следует за скроллом с плавной интерполяцией, кружки
