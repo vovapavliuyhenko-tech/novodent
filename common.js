@@ -31,7 +31,7 @@
   }
 
   /* ---------- Баннер cookie ---------- */
-  const KEY = 'emily_cookie_consent'; // 'all' | 'necessary'
+  const KEY = 'novodent_cookie_consent'; // 'all' | 'necessary'
   const read = () => { try { return localStorage.getItem(KEY); } catch (e) { return null; } };
   const write = v => { try { localStorage.setItem(KEY, v); } catch (e) { /* приватный режим */ } };
 

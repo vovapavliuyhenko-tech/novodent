@@ -1842,3 +1842,65 @@ a, button, label, summary { -webkit-tap-highlight-color: transparent; }
   .stat b { font-size: 12.5px; }
   .footer__item { font-size: 72px; }
 }
+
+/* =========================================================
+   НовоДент: логотип, галерея клиники, два врача
+   ========================================================= */
+.logo__mark--tooth { width: 24px; height: 26px; fill: none; color: var(--ink); }
+.logo__text--nd { font-size: 14px; letter-spacing: .22em; font-weight: 500; }
+.logo__text--nd small { margin-top: 5px; font-family: var(--font); font-size: 8.5px; letter-spacing: .04em; font-style: italic; font-weight: 400; text-transform: none; color: var(--gray); }
+.footer__mark--tooth { fill: none; color: #b9b7f1; width: .5em; height: .56em; }
+.footer__item i { letter-spacing: .5em; }
+
+.gallery {
+  display: grid;
+  grid-template-columns: 1.4fr 1fr 1fr;
+  grid-template-rows: repeat(2, clamp(180px, 18vw, 260px));
+  gap: 11px;
+}
+.gallery__item {
+  position: relative;
+  overflow: hidden;
+  margin: 0;
+  border-radius: var(--radius-lg);
+  background: #e9e6f2;
+}
+.gallery__item img { width: 100%; height: 100%; object-fit: cover; transition: transform .8s var(--ease); }
+.gallery__item:hover img { transform: scale(1.04); }
+.gallery__item--big { grid-row: span 2; }
+.gallery__item .tag { left: 14px; bottom: 14px; top: auto; font-weight: 500; }
+.gallery__facts {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 4px;
+  align-content: center;
+  padding: 22px 24px;
+  border-radius: var(--radius-lg);
+  color: #fff;
+  background:
+    radial-gradient(90% 70% at 100% 100%, #cfc6ee 0%, rgba(207, 198, 238, 0) 60%),
+    linear-gradient(160deg, #534786 0%, #6a5da5 50%, #8a7cc0 100%);
+}
+.gallery__facts div { display: flex; align-items: baseline; gap: 10px; padding: 8px 0; border-bottom: 1px solid rgba(255, 255, 255, .18); }
+.gallery__facts div:last-child { border-bottom: 0; }
+.gallery__facts b { font-size: clamp(22px, 2vw, 28px); font-weight: 400; white-space: nowrap; }
+.gallery__facts span { font-size: 12.5px; color: rgba(255, 255, 255, .8); }
+
+.doctors--two { grid-template-columns: repeat(2, minmax(0, 1fr)); max-width: 640px; }
+
+.service--3 .obj3d { width: 56%; left: 42%; top: -6%; }
+
+@media (max-width: 900px) {
+  .gallery { grid-template-columns: 1fr 1fr; grid-template-rows: auto; }
+  .gallery__item { aspect-ratio: 4 / 3; }
+  .gallery__item--big { grid-column: 1 / -1; grid-row: auto; aspect-ratio: 4 / 3; }
+  .gallery__facts { grid-column: 1 / -1; }
+}
+@media (max-width: 600px) {
+  .gallery { gap: 10px; }
+  .gallery__item { border-radius: 20px; }
+  .gallery__facts { padding: 16px 18px; border-radius: 20px; }
+  .doctors--two { max-width: none; }
+  .logo__text--nd { font-size: 13px; letter-spacing: .18em; }
+  .service--3 .obj3d { width: 54%; left: auto; right: -4%; top: -6%; }
+}
