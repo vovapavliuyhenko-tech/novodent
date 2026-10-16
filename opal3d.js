@@ -11,6 +11,10 @@ const clamp = (v, a, b) => (v < a ? a : v > b ? b : v);
 import { RoomEnvironment } from 'three/addons/environments/RoomEnvironment.js';
 
 const reduceMotion = matchMedia('(prefers-reduced-motion: reduce)').matches;
+// телефоны и планшеты: облегчённый режим (меньше пикселей, 30 кадров/с, проще материал)
+const isPhone = matchMedia('(max-width: 700px), (hover: none) and (pointer: coarse)').matches;
+let lastScroll = 0;
+addEventListener('scroll', () => { lastScroll = performance.now(); }, { passive: true });
 
 /* ---------- Геометрия: строится в фоновом потоке, чтобы не тормозить страницу ---------- */
 const geoCache = new Map();
@@ -97,10 +101,10 @@ function init() {
       iridescence: 1,
       iridescenceIOR: 1.45,
       iridescenceThicknessRange: [180, 900],
-      clearcoat: 1,
+      clearcoat: isPhone ? 0.5 : 1,
       clearcoatRoughness: 0.03,
       specularIntensity: 1,
-      sheen: 1,
+      sheen: isPhone ? 0 : 1,
       sheenColor: new THREE.Color(0xf0c8ff),
       sheenRoughness: 0.25,
       envMapIntensity: 1.25,
@@ -204,7 +208,7 @@ function init() {
       const v = e.target.__view;
       v.visible = e.isIntersecting;
     });
-  }, { rootMargin: '200px 0px' });
+  }, { rootMargin: isPhone ? '60px 0px' : '200px 0px' });
 
   document.querySelectorAll('.obj3d').forEach(el => {
     const v = new View(el);
@@ -235,13 +239,25 @@ function init() {
   const ease = t => 1 - Math.pow(1 - t, 3);
   const backOut = t => { const c1 = 1.5, c3 = c1 + 1; return 1 + c3 * Math.pow(t - 1, 3) + c1 * Math.pow(t - 1, 2); };
 
+  // адаптивное качество: если кадры долгие, снижаем плотность пикселей
+  let quality = isPhone ? 1.25 : 2;
+  let slowTime = 0, frameNo = 0, lastRender = performance.now();
+
   function frame(now) {
-    const dt = Math.min(0.05, (now - last) / 1000);
+    const rawDt = (now - last) / 1000;
     last = now;
+    frameNo++;
+    if (rawDt > 0.028 && rawDt < 0.5) slowTime += rawDt; else slowTime = Math.max(0, slowTime - rawDt * 0.5);
+    if (slowTime > 1 && quality > 1) { quality = 1; slowTime = 0; }
+    // телефоны: 30 кадров/с, а во время прокрутки — реже, чтобы листалось плавно
+    const scrolling = now - lastScroll < 160;
+    const every = isPhone ? (scrolling ? 4 : 2) : (scrolling ? 2 : 1);
+    if (frameNo % every !== 0) { requestAnimationFrame(frame); return; }
+    const dt = Math.min(0.1, (now - lastRender) / 1000);
+    lastRender = now;
     const time = now / 1000;
     shared.uTime.value = time;
-    // на телефонах чуть ниже плотность — плавнее и меньше нагрев
-    const dpr = Math.min(devicePixelRatio || 1, innerWidth < 700 ? 1.75 : 2);
+    const dpr = Math.min(devicePixelRatio || 1, quality);
 
     for (const v of views) {
       if (!v.visible || !v.ready) continue;

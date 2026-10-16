@@ -1917,3 +1917,52 @@ a, button, label, summary { -webkit-tap-highlight-color: transparent; }
 }
 .doctor:hover .doctor__icon { transform: scale(1.06) rotate(-4deg); }
 @media (max-width: 600px) { .doctor__icon { width: 48px; } }
+
+/* =========================================================
+   Телефоны: аккуратная шапка, «Первый визит», производительность
+   ========================================================= */
+@media (max-width: 600px) {
+  /* шапка помещается даже на 320–360px */
+  .header__inner { gap: 8px; padding: 0 5px 0 14px; }
+  .logo { gap: 8px; min-width: 0; }
+  .logo__mark--tooth { width: 20px; height: 22px; }
+  .logo__text--nd { font-size: 12.5px; letter-spacing: .16em; white-space: nowrap; }
+  .logo__text--nd small { font-size: 8px; }
+  .header__right { gap: 6px; flex: none; }
+  .header .btn--sm { height: 40px; padding: 0 14px; font-size: 12.5px; }
+
+  /* Первый визит: шаги без лишнего отступа, карточка записи на всю ширину */
+  .steps__track { left: 17px; }
+  .step { padding-left: 50px; padding-bottom: 24px; }
+  .step__num { width: 36px; height: 36px; font-size: 11px; }
+  .step h3 { padding-top: 6px; }
+  .step--cta { padding-left: 0; padding-top: 48px; }
+  .step-cta { margin-top: 0; padding: 18px 16px; }
+  .step-cta h3 { font-size: 18px; }
+}
+
+@media (max-width: 360px) {
+  .logo__text--nd small { display: none; }
+  .header .btn--sm { padding: 0 12px; font-size: 12px; }
+}
+
+/* Сенсорные устройства: без размытия фона (backdrop-filter) — оно сильно тормозит прокрутку */
+@media (hover: none), (max-width: 700px) {
+  .header__inner,
+  .header.is-scrolled .header__inner { -webkit-backdrop-filter: none; backdrop-filter: none; background: rgba(255, 255, 255, .95); }
+  .nav,
+  .price,
+  .stat,
+  .doctor__bar,
+  .visit__price,
+  .form,
+  .cookie,
+  .select__list { -webkit-backdrop-filter: none; backdrop-filter: none; }
+  .price { background: #fff; }
+  .stat { background: rgba(255, 255, 255, .16); }
+  .doctor__bar { background: rgba(255, 255, 255, .9); }
+  .form { background: rgba(255, 255, 255, .16); }
+  .cookie { background: rgba(255, 255, 255, .97); }
+  /* появление блоков — короче и без сдвига, чтобы не дёргалось при быстрой прокрутке */
+  .reveal { transform: translateY(14px); transition-duration: .6s; }
+}

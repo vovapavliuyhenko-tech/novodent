@@ -153,8 +153,7 @@
 
   /* ---------- Первый визит: шаги загораются по скроллу ---------- */
   // Сплошная линия от центра первого кружка до центра последнего.
-  // Заполнение следует за скроллом с плавной интерполяцией, кружки
-  // загораются, когда линия до них доходит.
+  // Анимация работает, только пока блок на экране и линия ещё «доезжает».
   const stepsEl = $('#steps');
   if (stepsEl) {
     const steps = $$('.step', stepsEl);
@@ -164,7 +163,7 @@
     track.innerHTML = '<span class="steps__fill"></span><span class="steps__dot"></span>';
     stepsEl.prepend(track);
 
-    let centers = [], top = 0, height = 1, target = 0, shown = 0;
+    let centers = [], top = 0, height = 1, target = 0, shown = 0, running = false, inView = false;
     const layout = () => {
       centers = nums.map(n => n.offsetTop + n.closest('.step').offsetTop + n.offsetHeight / 2);
       top = centers[0];
@@ -177,75 +176,86 @@
       const r = stepsEl.getBoundingClientRect();
       target = Math.max(0, Math.min(1, (mark - (r.top + top)) / height));
     };
-    const tick = () => {
-      shown += (target - shown) * 0.12;
-      if (Math.abs(target - shown) < 0.0005) shown = target;
+    const paint = () => {
       track.style.setProperty('--p', shown.toFixed(4));
       track.style.setProperty('--dot', shown > 0.01 && shown < 0.99 ? 1 : 0);
       steps.forEach((s, i) => {
         const reached = (shown > 0.0005 || target > 0) && (centers[i] - top) / height <= shown + 0.001;
         if (reached !== s.classList.contains('is-active')) s.classList.toggle('is-active', reached);
       });
+    };
+    const tick = () => {
+      shown += (target - shown) * 0.14;
+      const done = Math.abs(target - shown) < 0.0005;
+      if (done) shown = target;
+      paint();
+      if (done) { running = false; return; }   // догнали — останавливаемся до следующей прокрутки
       requestAnimationFrame(tick);
     };
+    const kick = () => {
+      if (!inView) return;
+      measure();
+      if (!running) { running = true; requestAnimationFrame(tick); }
+    };
+    new IntersectionObserver(([e]) => { inView = e.isIntersecting; if (inView) kick(); }, { rootMargin: '100px 0px' }).observe(stepsEl);
+    window.addEventListener('scroll', kick, { passive: true });
+    window.addEventListener('resize', () => { layout(); kick(); });
+    document.fonts && document.fonts.ready.then(() => { layout(); kick(); });
     layout();
-    measure();
-    window.addEventListener('scroll', measure, { passive: true });
-    window.addEventListener('resize', () => { layout(); measure(); });
-    document.fonts && document.fonts.ready.then(() => { layout(); measure(); });
-    if (matchMedia('(prefers-reduced-motion: reduce)').matches) {
-      window.addEventListener('scroll', () => { shown = target; }, { passive: true });
-    }
-    requestAnimationFrame(tick);
   }
 
-  /* ---------- Отзывы: бесконечная лента ---------- */
-  $$('.marquee__track').forEach(track => {
-    track.innerHTML += track.innerHTML; // дубль для бесшовной прокрутки
-    $$('.review', track).slice(track.children.length / 2).forEach(el => el.setAttribute('aria-hidden', 'true'));
-    const dir = track.dataset.dir === 'right' ? 1 : -1;
-    let x = dir === 1 ? -track.scrollWidth / 2 : 0;
-    let paused = false;
-    const speed = 0.35;
-    track.parentElement.addEventListener('mouseenter', () => { paused = true; });
-    track.parentElement.addEventListener('mouseleave', () => { paused = false; });
-    const loop = () => {
-      if (!paused) {
-        const half = track.scrollWidth / 2;
-        x += speed * dir;
-        if (x <= -half) x += half;
-        if (x >= 0) x -= half;
-        track.style.transform = `translate3d(${x}px,0,0)`;
-      }
-      requestAnimationFrame(loop);
+  /* ---------- Бегущие ленты: отзывы и логотипы в подвале ---------- */
+  // Скорость в пикселях в секунду (одинаково на 30 и 120 Гц), ширина читается
+  // один раз и при ресайзе — без пересчёта раскладки в каждом кадре.
+  // Ленты работают и при «уменьшении движения» на телефоне — они медленные и плавные.
+  const isMouse = e => e.pointerType === 'mouse';
+  function runBelt(track, { speed, dir = -1, copies = 2, hoverSlow = 0, observe }) {
+    let x = 0, cur = speed, want = speed, last = performance.now(), visible = false, period = 1;
+    const measureBelt = () => {
+      period = track.scrollWidth / copies;
+      if (dir === 1 && x === 0) x = -period;
     };
-    if (!matchMedia('(prefers-reduced-motion: reduce)').matches) requestAnimationFrame(loop);
+    measureBelt();
+    window.addEventListener('resize', measureBelt);
+    document.fonts && document.fonts.ready.then(measureBelt);
+    if (hoverSlow) {
+      observe.addEventListener('pointerenter', e => { if (isMouse(e)) want = speed * hoverSlow; });
+      observe.addEventListener('pointerleave', e => { if (isMouse(e)) want = speed; });
+    }
+    new IntersectionObserver(([e]) => {
+      visible = e.isIntersecting;
+      if (visible) { last = performance.now(); requestAnimationFrame(step); }
+    }, { rootMargin: '50px 0px' }).observe(observe);
+    function step(now) {
+      if (!visible) return;                       // вне экрана — не крутим
+      const dt = Math.min(0.1, (now - last) / 1000);
+      last = now;
+      cur += (want - cur) * Math.min(1, dt * 4);
+      x += cur * dt * dir;
+      if (x <= -period) x += period;
+      if (x >= 0) x -= period;
+      track.style.transform = `translate3d(${x.toFixed(2)}px,0,0)`;
+      requestAnimationFrame(step);
+    }
+  }
+
+  $$('.marquee__track').forEach(track => {
+    track.innerHTML += track.innerHTML;           // дубль для бесшовной прокрутки
+    $$('.review', track).slice(track.children.length / 2).forEach(el => el.setAttribute('aria-hidden', 'true'));
+    runBelt(track, {
+      speed: 22,
+      dir: track.dataset.dir === 'right' ? 1 : -1,
+      copies: 2,
+      hoverSlow: 0.0001,                          // мышью — пауза при наведении
+      observe: track.parentElement
+    });
   });
 
-  /* ---------- Подвал: бегущая строка логотипов ---------- */
-  // Движение через rAF: при наведении скорость плавно падает, без скачка позиции.
   const ticker = $('.footer__ticker');
-  if (ticker && !matchMedia('(prefers-reduced-motion: reduce)').matches) {
-    const track = $('.footer__track', ticker);
-    const base = 60;                 // px в секунду
-    let x = 0, speed = base, target = base, last = performance.now(), visible = true;
-    ticker.addEventListener('pointerenter', () => { target = base * 0.25; });
-    ticker.addEventListener('pointerleave', () => { target = base; });
-    new IntersectionObserver(([e]) => { visible = e.isIntersecting; }).observe(ticker);
-    const step = now => {
-      const dt = Math.min(0.05, (now - last) / 1000);
-      last = now;
-      if (visible) {
-        speed += (target - speed) * Math.min(1, dt * 3);
-        const loop = track.scrollWidth / 3;     // ширина одного логотипа
-        x -= speed * dt;
-        if (-x >= loop) x += loop;
-        track.style.transform = `translate3d(${x}px,0,0)`;
-      }
-      requestAnimationFrame(step);
-    };
-    requestAnimationFrame(step);
+  if (ticker) {
+    runBelt($('.footer__track', ticker), { speed: 60, dir: -1, copies: 3, hoverSlow: 0.25, observe: ticker });
   }
+
 
   /* ---------- Форма записи ---------- */
   const phone = $('#phone');
