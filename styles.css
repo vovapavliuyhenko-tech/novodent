@@ -1904,3 +1904,14 @@ a, button, label, summary { -webkit-tap-highlight-color: transparent; }
   .logo__text--nd { font-size: 13px; letter-spacing: .18em; }
   .service--3 .obj3d { width: 54%; left: auto; right: -4%; top: -6%; }
 }
+
+/* Карточка врача по специальности (без фото и имени) */
+.doctor__icon {
+  width: clamp(54px, 5vw, 76px);
+  height: auto;
+  color: rgba(255, 255, 255, .92);
+  filter: drop-shadow(0 10px 24px rgba(60, 40, 120, .2));
+  transition: transform .8s var(--ease);
+}
+.doctor:hover .doctor__icon { transform: scale(1.06) rotate(-4deg); }
+@media (max-width: 600px) { .doctor__icon { width: 48px; } }
